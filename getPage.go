@@ -7,6 +7,7 @@ import (
 )
 
 type BlogPost struct {
+	Id       int
 	Url      string
 	DateTime string
 	Title    string
@@ -16,10 +17,11 @@ type BlogPost struct {
 
 func main() {
 	var blog []BlogPost
-	store, err := NewBadgerStore("./blog.db")
+	store, err := NewSqliteStore("./blog.db")
 	if err != nil {
 		panic(err)
 	}
+	defer store.Close()
 
 	// instantiate a new collector object
 	c := colly.NewCollector(
@@ -50,8 +52,13 @@ func main() {
 		blogPost.Html, _ = e.DOM.Find("article.b-singlepost-body").Html()
 		blogPost.DateTime = e.ChildText(".b-singlepost-author-date") // Why it's doubled? "2024-09-07 19:07:002024-09-07 19:07:00"
 		// blogPost.DateTime = e.ChildText(".b-singlepost-author-userinfo-screen")
-		blogPost.Url = e.Request.URL.String()
 		blogPost.Tags = e.ChildText(".b-singlepost-tags-items") // Need to iterate
+		blogPost.Url = e.Request.URL.String()
+		blogPost.Id, err = GetPostId(blogPost.Url)
+		if err != nil {
+			fmt.Printf("Failed to get post ID: %s", err)
+			panic(err)
+		}
 		blog = append(blog, blogPost)
 	})
 
@@ -65,7 +72,7 @@ func main() {
 		fmt.Println("Post url >>>:", i, blogPost.Url)
 		fmt.Println("Post date >>>:", i, blogPost.DateTime)
 		fmt.Println("Post tags >>>:", i, blogPost.Tags)
+		store.AddBlogPost(blogPost)
 	}
 
-	store.AddBlogPost(blog[0])
 }
