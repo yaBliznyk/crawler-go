@@ -15,7 +15,11 @@ type BlogPost struct {
 }
 
 func main() {
-	var blogPosts []BlogPost
+	var blog []BlogPost
+	store, err := NewBadgerStore("./blog.db")
+	if err != nil {
+		panic(err)
+	}
 
 	// instantiate a new collector object
 	c := colly.NewCollector(
@@ -48,14 +52,14 @@ func main() {
 		// blogPost.DateTime = e.ChildText(".b-singlepost-author-userinfo-screen")
 		blogPost.Url = e.Request.URL.String()
 		blogPost.Tags = e.ChildText(".b-singlepost-tags-items") // Need to iterate
-		blogPosts = append(blogPosts, blogPost)
+		blog = append(blog, blogPost)
 	})
 
 	// open the target URL
 	c.Visit("https://evo-lutio.livejournal.com/1699420.html")
 	c.Wait()
 
-	for i, blogPost := range blogPosts {
+	for i, blogPost := range blog {
 		fmt.Println("Post html >>>:", i, blogPost.Html)
 		fmt.Println("Post title >>>:", i, blogPost.Title)
 		fmt.Println("Post url >>>:", i, blogPost.Url)
@@ -63,4 +67,5 @@ func main() {
 		fmt.Println("Post tags >>>:", i, blogPost.Tags)
 	}
 
+	store.AddBlogPost(blog[0])
 }
