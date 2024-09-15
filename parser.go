@@ -7,13 +7,11 @@ import (
 	"strings"
 )
 
-type Blog []BlogPost
-
-func GetPostId(postUrl string) (int, error) {
+func GetPostIdFromUrl(postUrl string) (int, error) {
 	parsedUrl, err := url.Parse(postUrl) // https://user.livejournal.com/1699420.html
 	if err != nil {
 		fmt.Printf("Failed to parse URL: %s\n", err)
-		return 0, err
+		return -1, err
 	}
 	path := parsedUrl.Path                            // /1699420.html
 	htmlPath := path[strings.LastIndex(path, "/")+1:] // 1699420.html
@@ -22,7 +20,7 @@ func GetPostId(postUrl string) (int, error) {
 	postIDInt, err := strconv.Atoi(postID)
 	if err != nil {
 		fmt.Printf("Failed to convert post ID to int: %s\n", err)
-		return 0, err
+		return -1, err
 	}
 	return postIDInt, nil
 }
