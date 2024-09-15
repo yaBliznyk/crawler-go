@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"database/sql"
@@ -7,12 +7,6 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 )
-
-type SqliteStore struct {
-	sql    *sql.DB
-	stmt   *sql.Stmt
-	buffer []BlogPost
-}
 
 const (
 	schemaSQL = `
@@ -26,6 +20,12 @@ CREATE TABLE IF NOT EXISTS blog (
 `
 	insertSQL = `INSERT INTO blog (id, url, title, html, tags) VALUES (?, ?, ?, ?, ?);`
 )
+
+type SqliteStore struct {
+	sql    *sql.DB
+	stmt   *sql.Stmt
+	buffer []BlogPost
+}
 
 func NewSqliteStore(file string) (*SqliteStore, error) {
 	db, err := sql.Open("sqlite3", file)

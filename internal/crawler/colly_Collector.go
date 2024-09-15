@@ -1,26 +1,16 @@
-package main
+package crawler
 
 import (
 	"fmt"
 	"regexp"
 
+	"github.com/DrewCyber/crawler-go/internal/storage"
 	"github.com/gocolly/colly"
 )
 
-type BlogPost struct {
-	Id       int
-	Url      string
-	DateTime string
-	Title    string
-	Html     string
-	Tags     string
-}
-
-// type Blog []BlogPost
-
 var err error
 
-func NewCollector(store *SqliteStore) *colly.Collector {
+func NewCollector(store storage.Repo) *colly.Collector {
 	c := colly.NewCollector(
 		colly.AllowedDomains("evo-lutio.livejournal.com"),
 		colly.CacheDir("./colly_cache"),
@@ -51,7 +41,7 @@ func NewCollector(store *SqliteStore) *colly.Collector {
 
 	// Parse single blog post
 	c.OnHTML(".b-singlepost", func(e *colly.HTMLElement) {
-		blogPost := BlogPost{}
+		blogPost := storage.BlogPost{}
 		blogPost.Title = e.ChildText("h1.b-singlepost-title")
 		blogPost.Html, _ = e.DOM.Find("article.b-singlepost-body").Html()
 		blogPost.DateTime = e.ChildText(".b-singlepost-author-date") // BUG. Why it's doubled? "2024-09-07 19:07:002024-09-07 19:07:00"
