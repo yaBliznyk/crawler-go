@@ -1,7 +1,8 @@
 package main
 
 import (
-	crawler "github.com/DrewCyber/crawler-go/internal/crawler"
+	"github.com/DrewCyber/crawler-go/internal/crawler"
+	"github.com/DrewCyber/crawler-go/internal/scraper"
 	storage "github.com/DrewCyber/crawler-go/internal/sqlite_storage"
 )
 
@@ -12,11 +13,12 @@ func main() {
 	}
 	defer store.Close()
 
-	collector := crawler.NewCollector(store)
+	scraper := scraper.NewCollector(store)
+
+	crawler := crawler.NewCrawler(scraper, store)
 
 	// open the target URL
-	collector.Visit("https://evo-lutio.livejournal.com/1699420.html")
+	crawler.Start("https://evo-lutio.livejournal.com/1699420.html")
 	// collector.Visit("https://evo-lutio.livejournal.com/2024/07/14/")
-	collector.Wait()
 
 }
