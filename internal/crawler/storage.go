@@ -1,4 +1,4 @@
-package storage
+package crawler
 
 type BlogPost struct {
 	Id       int
@@ -10,5 +10,5 @@ type BlogPost struct {
 }
 type Repo interface {
 	AddBlogPost(BlogPost) error
-	Close() error
+	Close()
 }

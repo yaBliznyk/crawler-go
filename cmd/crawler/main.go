@@ -2,11 +2,11 @@ package main
 
 import (
 	crawler "github.com/DrewCyber/crawler-go/internal/crawler"
-	storage "github.com/DrewCyber/crawler-go/internal/storage"
+	storage "github.com/DrewCyber/crawler-go/internal/sqlite_storage"
 )
 
 func main() {
-	store, err := storage.NewSqliteStore("../../blog.db")
+	store, err := storage.NewSqliteStore("./blog.db")
 	if err != nil {
 		panic(err)
 	}
