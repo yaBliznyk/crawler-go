@@ -1,24 +1,33 @@
 package main
 
 import (
+	"database/sql"
+
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/DrewCyber/crawler-go/internal/crawler"
 	"github.com/DrewCyber/crawler-go/internal/scraper"
-	storage "github.com/DrewCyber/crawler-go/internal/sqlite_storage"
+	"github.com/DrewCyber/crawler-go/internal/storage"
 )
 
 func main() {
-	store, err := storage.NewSqliteStore("./blog.db")
+	db, err := sql.Open("sqlite3", "./blog.db")
 	if err != nil {
 		panic(err)
 	}
-	defer store.Close()
+	defer db.Close()
 
-	scraper := scraper.NewCollector(store)
+	repo, err := storage.NewRepo(db)
+	if err != nil {
+		panic(err)
+	}
 
-	crawler := crawler.NewCrawler(scraper, store)
+	svc := crawler.NewCrawler(repo)
+
+	scraper := scraper.NewCollector(svc)
+	scraper.Init()
 
 	// open the target URL
-	crawler.Start("https://evo-lutio.livejournal.com/1699420.html")
+	scraper.Start("https://evo-lutio.livejournal.com/1699420.html")
 	// collector.Visit("https://evo-lutio.livejournal.com/2024/07/14/")
-
 }

@@ -1,2 +1,4 @@
 colly_cache
 blog.db
+vendor/
+.idea/

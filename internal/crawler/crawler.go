@@ -1,40 +1,42 @@
 package crawler
 
+// DOMAIN
 type BlogPost struct {
-	Id       int
-	Url      string
+	ID       int
+	URL      string
 	DateTime string
 	Title    string
 	Html     string
 	Tags     string
+	Comments []string
 }
+
+func (bp *BlogPost) AddComments(comments []string) error {
+	bp.Comments = append(bp.Comments, comments...)
+	return nil
+}
+
+// APPLICATION
+type Repo interface {
+	CreateBlogPost(*BlogPost) error
+	GetBlogPostByID(id int) (*BlogPost, error)
+	UpdateBlogPost(*BlogPost) error
+}
+
+type Service interface {
+	CreateBlogPost(BlogPost) error
+	SaveBlogComments(id int, comments []string)
+}
+
+// ----------------------
 
 // Crawler gets pages recursively and queues them
 type Crawler struct {
-	scraper Scraper // Scraper gets pages, extract new urls and blogPost from them
-	storage Storage // Storage stores data
+	repo Repo // Storage stores data
 }
 
-type Scraper interface {
-	Visit(string) error
-	// Parse(HTMLElement)
-	Wait()
-}
-
-type Storage interface {
-	AddBlogPost(BlogPost) error
-	Close()
-}
-
-func NewCrawler(scraper Scraper, storage Storage) *Crawler {
+func NewCrawler(repo Repo) *Crawler {
 	return &Crawler{
-		scraper: scraper,
-		storage: storage,
+		repo: repo,
 	}
-}
-
-func (c *Crawler) Start(url string) error {
-	c.scraper.Visit(url)
-	c.scraper.Wait()
-	return nil
 }

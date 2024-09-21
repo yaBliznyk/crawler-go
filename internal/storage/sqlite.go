@@ -4,19 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/DrewCyber/crawler-go/internal/crawler"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
-	schemaSQL = `
-CREATE TABLE IF NOT EXISTS blog (
-  id INTEGER PRIMARY KEY,
-  url TEXT,
-  title TEXT,
-  html TEXT,
-  tags TEXT
-);
-`
 	insertSQL = `INSERT INTO blog (id, url, title, html, tags) VALUES (?, ?, ?, ?, ?);`
 )
 
@@ -25,12 +15,7 @@ type SqliteStore struct {
 	stmt *sql.Stmt
 }
 
-func NewSqliteStore(file string) (*SqliteStore, error) {
-	db, err := sql.Open("sqlite3", file)
-	if err != nil {
-		return nil, err
-	}
-
+func NewRepo(db *sql.DB) (*SqliteStore, error) {
 	if _, err := db.Exec(schemaSQL); err != nil {
 		return nil, err
 	}
@@ -44,11 +29,10 @@ func NewSqliteStore(file string) (*SqliteStore, error) {
 		sql:  db,
 		stmt: stmt,
 	}, nil
-
 }
 
 func (s *SqliteStore) AddBlogPost(blogPost crawler.BlogPost) error {
-	_, err := s.stmt.Exec(blogPost.Id, blogPost.Url, blogPost.Title, blogPost.Html, blogPost.Tags)
+	_, err := s.stmt.Exec(blogPost.ID, blogPost.URL, blogPost.Title, blogPost.Html, blogPost.Tags)
 	return err
 }
 
